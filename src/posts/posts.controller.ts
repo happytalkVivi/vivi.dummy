@@ -9,8 +9,8 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
-import { CreatePostDto, UpdatePostDto } from './posts.dto';
+import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { CreatePostDto, UpdatePostDto, LikePostResponseDto } from './posts.dto';
 
 const titles = ['오늘의 일기', 'NestJS 공부', '맛집 탐방', '여행 후기', '개발 팁', '일상 이야기', '책 리뷰', '영화 감상', '운동 기록', '요리 레시피'];
 const contents = [
@@ -99,6 +99,7 @@ export class PostsController {
   @Post(':id/like')
   @ApiOperation({ summary: '게시글 좋아요' })
   @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 201, description: '좋아요 성공', type: LikePostResponseDto })
   likePost(@Param('id') id: number) {
     return {
       postId: Number(id),

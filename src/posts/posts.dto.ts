@@ -21,3 +21,14 @@ export class UpdatePostDto {
   @ApiPropertyOptional({ example: ['수정', '업데이트'] })
   tags?: string[];
 }
+
+export class LikePostResponseDto {
+  @ApiProperty({ example: 1 })
+  postId: number;
+
+  @ApiProperty({ example: 150 })
+  likes: number;
+
+  @ApiProperty({ example: 'Post liked successfully' })
+  message: string;
+}

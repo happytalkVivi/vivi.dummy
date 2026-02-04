@@ -50,7 +50,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '유저 상세 조회' })
+  @ApiOperation({ summary: '유저 상세 조회', description: '디스크립션이 있는 API' })
   @ApiParam({ name: 'id', type: Number })
   getUser(@Param('id') id: number) {
     return this.generateUser(Number(id));

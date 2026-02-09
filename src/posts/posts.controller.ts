@@ -10,7 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { CreatePostDto, UpdatePostDto, LikePostResponseDto } from './posts.dto';
+import { CreatePostDto, UpdatePostDto, LikePostResponseDto, PostStatisticsResponseDto } from './posts.dto';
 
 const titles = ['오늘의 일기', 'NestJS 공부', '맛집 탐방', '여행 후기', '개발 팁', '일상 이야기', '책 리뷰', '영화 감상', '운동 기록', '요리 레시피'];
 const contents = [
@@ -138,6 +138,56 @@ export class PostsController {
       id: Number(id),
       deleted: true,
       message: 'Post deleted successfully',
+    };
+  }
+
+  @Get(':id/statistics')
+  @ApiOperation({ summary: '게시글 통계 조회', description: '중첩 객체와 배열을 포함한 상세 통계' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: '통계 조회 성공', type: PostStatisticsResponseDto })
+  getPostStatistics(@Param('id') id: number) {
+    const months = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+    const comments = ['좋은 글이네요!', '많이 배웠습니다.', '감사합니다!', '도움이 됐어요.', '잘 읽었습니다.'];
+
+    return {
+      postId: Number(id),
+      title: randomItem(titles),
+      author: {
+        id: randomInt(1, 100),
+        name: randomItem(authors),
+        avatar: `https://i.pravatar.cc/150?u=${randomInt(1, 100)}`,
+      },
+      topComments: Array.from({ length: randomInt(2, 4) }, (_, i) => ({
+        id: i + 1,
+        content: randomItem(comments),
+        author: {
+          id: randomInt(1, 100),
+          name: randomItem(authors),
+          avatar: `https://i.pravatar.cc/150?u=${randomInt(1, 100)}`,
+        },
+        likes: randomInt(0, 50),
+        createdAt: new Date(Date.now() - randomInt(0, 30 * 24 * 60 * 60 * 1000)).toISOString(),
+      })),
+      tagStats: Array.from({ length: randomInt(2, 4) }, () => {
+        const count = randomInt(1, 50);
+        return {
+          name: randomItem(tags),
+          count,
+          percentage: parseFloat((count / 50 * 100).toFixed(1)),
+        };
+      }),
+      monthlyStats: months.map((month) => ({
+        month,
+        posts: randomInt(5, 30),
+        views: randomInt(100, 1000),
+        likes: randomInt(10, 200),
+      })),
+      engagement: {
+        views: randomInt(500, 5000),
+        likes: randomInt(50, 500),
+        shares: randomInt(10, 100),
+        bookmarks: randomInt(5, 50),
+      },
     };
   }
 }

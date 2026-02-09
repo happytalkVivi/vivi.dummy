@@ -142,24 +142,39 @@ export class PostsController {
   }
 
   @Get(':id/statistics')
-  @ApiOperation({ summary: '게시글 통계 조회', description: '중첩 객체와 배열을 포함한 상세 통계' })
+  @ApiOperation({ summary: '게시글 통계 조회', description: '중첩 객체와 중첩 배열을 포함한 상세 통계' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: '통계 조회 성공', type: PostStatisticsResponseDto })
   getPostStatistics(@Param('id') id: number) {
     const months = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
-    const comments = ['좋은 글이네요!', '많이 배웠습니다.', '감사합니다!', '도움이 됐어요.', '잘 읽었습니다.'];
+    const commentTexts = ['좋은 글이네요!', '많이 배웠습니다.', '감사합니다!', '도움이 됐어요.', '잘 읽었습니다.'];
+    const replyTexts = ['동의합니다!', '저도 그렇게 생각해요.', '좋은 의견이네요.', '감사합니다!'];
+    const platforms = ['twitter', 'instagram', 'linkedin', 'github'];
+    const bios = ['Senior Developer', 'Tech Writer', 'Full Stack Engineer', 'Product Designer'];
+    const locations = ['Seoul, Korea', 'Tokyo, Japan', 'San Francisco, USA', 'London, UK'];
 
     return {
       postId: Number(id),
       title: randomItem(titles),
+      // 중첩 객체: author.profile.socialLinks
       author: {
         id: randomInt(1, 100),
         name: randomItem(authors),
         avatar: `https://i.pravatar.cc/150?u=${randomInt(1, 100)}`,
+        profile: {
+          bio: randomItem(bios),
+          location: randomItem(locations),
+          socialLinks: Array.from({ length: randomInt(2, 3) }, () => ({
+            platform: randomItem(platforms),
+            url: `https://${randomItem(platforms)}.com/user${randomInt(1, 1000)}`,
+            followers: randomInt(100, 10000),
+          })),
+        },
       },
+      // 중첩 배열: topComments[].replies[]
       topComments: Array.from({ length: randomInt(2, 4) }, (_, i) => ({
         id: i + 1,
-        content: randomItem(comments),
+        content: randomItem(commentTexts),
         author: {
           id: randomInt(1, 100),
           name: randomItem(authors),
@@ -167,6 +182,12 @@ export class PostsController {
         },
         likes: randomInt(0, 50),
         createdAt: new Date(Date.now() - randomInt(0, 30 * 24 * 60 * 60 * 1000)).toISOString(),
+        replies: Array.from({ length: randomInt(1, 3) }, (_, j) => ({
+          id: j + 1,
+          content: randomItem(replyTexts),
+          authorName: randomItem(authors),
+          likes: randomInt(0, 20),
+        })),
       })),
       tagStats: Array.from({ length: randomInt(2, 4) }, () => {
         const count = randomInt(1, 50);

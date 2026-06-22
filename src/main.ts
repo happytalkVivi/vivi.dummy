@@ -9,7 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
 
-  // User API 문서 (OpenAPI 3.0)
+  // 개별 Swagger UI (기존 유지)
   const userConfig = new DocumentBuilder()
     .setTitle('User API')
     .setDescription('User 관련 API')
@@ -20,7 +20,6 @@ async function bootstrap() {
   });
   SwaggerModule.setup('api/user', app, userDocument);
 
-  // Posts API 문서 (Swagger 2.0으로 변환)
   const postsConfig = new DocumentBuilder()
     .setTitle('Posts API')
     .setDescription('게시글 관련 API')
@@ -38,14 +37,25 @@ async function bootstrap() {
   });
   const postsSwagger2Document = converted.spec;
 
-  // Swagger 2.0 JSON 엔드포인트 제공
-  app.getHttpAdapter().get('/api/posts-json', (req, res) => {
+  SwaggerModule.setup('api/posts', app, postsOas3Document);
+
+  // /docs: 모든 API를 하나로 합친 문서
+  const allConfig = new DocumentBuilder()
+    .setTitle('API Docs')
+    .setDescription('전체 API')
+    .setVersion('1.0.0')
+    .build();
+  const allDocument = SwaggerModule.createDocument(app, allConfig, {
+    include: [UsersModule, PostsModule],
+  });
+  SwaggerModule.setup('docs', app, allDocument);
+
+  // Swagger 2.0 JSON 엔드포인트 (기존 유지)
+  app.getHttpAdapter().get('/api/posts-v2-json', (_req: any, res: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     res.json(postsSwagger2Document);
   });
 
-  // Swagger UI는 OAS 3.0 버전으로 (UI 호환성)
-  SwaggerModule.setup('api/posts', app, postsOas3Document);
-
-  await app.listen(8084);
+  await app.listen(8144);
 }
 bootstrap();
